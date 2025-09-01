@@ -18,7 +18,7 @@ while not done:
     msg = client.recv(1024).decode('utf-8')
     with open("logs.txt", "a") as f:
         f.write(time + " | " + msg + "\n")
-    if msg == "quit":
+    if msg.strip() == "quit":
         print("Koniec wymiany wiadomości.")
         break
     else:
