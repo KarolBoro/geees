@@ -33,3 +33,4 @@ client.close()
 server.close()
 
 # dodac nicki do logow, i zebasdasy tez zeby zapisywal to co odbieramy od uzytkownika safasdfasdf
+# nnnn
