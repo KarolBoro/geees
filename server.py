@@ -32,4 +32,4 @@ while not done:
 client.close()
 server.close()
 
-# dodac nicki do logow, i zeby tez zeby zapisywal to co odbieramy od uzytkownika
+# dodac nicki do logow, i zebasdasy tez zeby zapisywal to co odbieramy od uzytkownika
