@@ -4,26 +4,29 @@ import threading
 
 
 chatrooms = {}
-
+nicks = {}
 def handle_client(client, addr):
-    print(f"[NOWE POŁĄCZENIE] {addr}")
-
     room = client.recv(1024).decode("utf-8").strip()
+    nickname = client.recv(1024).decode("utf-8")
+    print(f"[NOWE POŁĄCZENIE] {addr} , {nickname}")
+    nicks[addr] = nickname
     if room not in chatrooms:
         chatrooms[room] = []
     chatrooms[room].append(client)
-
+    for c in chatrooms[room]:
+        if c != client:
+            c.send(f"{nickname} just joined to the {room}".encode("utf-8"))
     try:
         while True:
+            time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             msg = client.recv(1024).decode("utf-8").strip()
             if not msg:
                 break
-            print(f"[{room}] {addr}: {msg}")
+            print(f" {time} [{room}] {addr} {nicks[addr]}: {msg}")
 
             for c in chatrooms[room]:
                 if c != client:
-                    c.send(f"Nowy użytkownik dołączył do {room}".encode("utf-8"))
-                    c.send(f"{addr}: {msg}".encode("utf-8"))
+                    c.send(f"{addr} {nicks[addr]}: {msg}".encode("utf-8"))
 
             if msg == "quit":
                 break
@@ -32,7 +35,7 @@ def handle_client(client, addr):
     finally:
         chatrooms[room].remove(client)
         client.close()
-        print(f"[ROZŁĄCZONO] {addr}")
+        print(f"[ROZŁĄCZONO] {addr} {nicks[addr]}")
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
