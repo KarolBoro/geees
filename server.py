@@ -35,6 +35,9 @@ def handle_client(client, addr):
     finally:
         chatrooms[room].remove(client)
         client.close()
+        for c in chatrooms[room]:
+            if c != client:
+                c.send(f"{nickname} has disconnected".encode("utf-8"))
         print(f"[ROZŁĄCZONO] {addr} {nicks[addr]}")
 
 def start_server():
