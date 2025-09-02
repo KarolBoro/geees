@@ -8,14 +8,16 @@ nicks = {}
 def handle_client(client, addr):
     room = client.recv(1024).decode("utf-8").strip()
     nickname = client.recv(1024).decode("utf-8")
-    print(f"[NOWE POŁĄCZENIE] {addr} , {nickname}")
+    print(f"[NOWE POŁĄCZENIE] {addr} , [{room}] ,{nickname}")
     nicks[addr] = nickname
     if room not in chatrooms:
         chatrooms[room] = []
-    chatrooms[room].append(client)
-    for c in chatrooms[room]:
+    chatrooms[room].append((client,nickname))
+    users_in_room = [nick for _, nick in chatrooms[room]]
+    client.send(f"[*] In the room are: {', '.join(users_in_room)}".encode("utf-8"))
+    for c, n in chatrooms[room]:
         if c != client:
-            c.send(f"{nickname} just joined to the {room}".encode("utf-8"))
+            c.send(f"[*] {nickname} just joined to the {room}".encode("utf-8"))
     try:
         while True:
             time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -24,20 +26,20 @@ def handle_client(client, addr):
                 break
             print(f" {time} [{room}] {addr} {nicks[addr]}: {msg}")
 
-            for c in chatrooms[room]:
+            for c,n in chatrooms[room]:
                 if c != client:
-                    c.send(f"{addr} {nicks[addr]}: {msg}".encode("utf-8"))
+                    c.send(f"{nicks[addr]}: {msg}".encode("utf-8"))
 
             if msg == "quit":
                 break
     except:
         pass
     finally:
-        chatrooms[room].remove(client)
+        chatrooms[room] = [(c,n) for c,n in chatrooms[room] if c != client]
         client.close()
-        for c in chatrooms[room]:
+        for c,n in chatrooms[room]:
             if c != client:
-                c.send(f"{nickname} has disconnected".encode("utf-8"))
+                c.send(f"[*] {nickname} has disconnected".encode("utf-8"))
         print(f"[ROZŁĄCZONO] {addr} {nicks[addr]}")
 
 def start_server():
