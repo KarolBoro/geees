@@ -32,7 +32,7 @@ def handle_client(client, addr):
             for c,n in chatrooms[room]:
                 if c != client:
                     c.send(f"{nicks[addr]}: {msg}".encode("utf-8"))
-            if msg == "quit":
+            if msg == "/quit":
                 break
 
     except:
@@ -44,6 +44,12 @@ def handle_client(client, addr):
             if c != client:
                 c.send(f"[*] {nickname} has disconnected".encode("utf-8"))
         print(f"[ROZŁĄCZONO] {addr} {nicks[addr]}")
+        if addr in nicks:
+            del nicks[addr]
+        if not chatrooms[room]:
+            print(f"[POKOJ NR [{room}] ZOSTAL USUNIETY]")
+            del chatrooms[room]
+
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
