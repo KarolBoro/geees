@@ -24,16 +24,17 @@ def handle_client(client, addr):
             msg = client.recv(1024).decode("utf-8").strip()
             if not msg:
                 break
+            if msg == "/who":
+                client.send(f"[*] In the room are: {', '.join(users_in_room)}".encode("utf-8"))
+                continue
             print(f" {time} [{room}] {addr} {nicks[addr]}: {msg}")
 
             for c,n in chatrooms[room]:
                 if c != client:
                     c.send(f"{nicks[addr]}: {msg}".encode("utf-8"))
-
             if msg == "quit":
                 break
-            if msg == "/who":
-                client.send(f"[*] In the room are: {', '.join(users_in_room)}".encode("utf-8"))
+
     except:
         pass
     finally:
