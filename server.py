@@ -32,6 +32,8 @@ def handle_client(client, addr):
 
             if msg == "quit":
                 break
+            if msg == "/who":
+                client.send(f"[*] In the room are: {', '.join(users_in_room)}".encode("utf-8"))
     except:
         pass
     finally:
