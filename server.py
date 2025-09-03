@@ -24,28 +24,52 @@ def handle_client(client, addr):
             msg = client.recv(1024).decode("utf-8").strip()
             if not msg:
                 break
+
             if msg == "/who":
                 client.send(f"[*] In the room are: {', '.join(users_in_room)}".encode("utf-8"))
+                continue
+
+            if msg.startswith("/nick"):
+                parts = msg.split(" ",1)
+                if len(parts) < 2:
+                    client.send(f"[*] To change nickname use: /nick <NEW_NICKNAME".encode("utf-8"))
+                    continue
+                new_nickname = parts[1]
+                old_nickname = nickname
+                nickname = new_nickname
+                nicks[addr] = new_nickname
+                chatrooms[room] = [(c, new_nickname if c == client else n) for c, n in chatrooms[room]]
+                users_in_room = [nick for _, nick in chatrooms[room]]
+                client.send(f"[*] Your NICKNAME has been changed to {new_nickname}".encode("utf-8"))
+                for c, n in chatrooms[room]:
+                    if c != client:
+                        c.send(f"[*] From now {old_nickname} is known as {new_nickname}".encode("utf-8"))
+                        print(f"[*] From now {old_nickname} is known as {new_nickname}")
                 continue
             print(f" {time} [{room}] {addr} {nicks[addr]}: {msg}")
 
             for c,n in chatrooms[room]:
                 if c != client:
-                    c.send(f"{nicks[addr]}: {msg}".encode("utf-8"))
-            if msg == "/quit":
+                    c.send(f"{nickname}: {msg}".encode("utf-8"))
+            if msg.strip() == "/quit":
                 break
 
     except:
         pass
     finally:
+        user_nick = nicks.get(addr, nickname)
         chatrooms[room] = [(c,n) for c,n in chatrooms[room] if c != client]
         client.close()
+
         for c,n in chatrooms[room]:
             if c != client:
-                c.send(f"[*] {nickname} has disconnected".encode("utf-8"))
-        print(f"[ROZŁĄCZONO] {addr} {nicks[addr]}")
+                c.send(f"[*] {user_nick} has disconnected".encode("utf-8"))
+
+        print(f"[ROZŁĄCZONO] {addr} {user_nick}")
+
         if addr in nicks:
             del nicks[addr]
+
         if not chatrooms[room]:
             print(f"[POKOJ NR [{room}] ZOSTAL USUNIETY]")
             del chatrooms[room]
