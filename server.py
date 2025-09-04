@@ -49,6 +49,32 @@ def handle_client(client, addr):
                 chatrooms[room] = [(client, nickname)]
                 client.send(f"[*] You created and joined room '{room}'".encode("utf-8"))
 
+            if msg.startswith("/join"):
+                parts_join = msg.split(" ",1)
+                if len(parts_join) < 2:
+                    client.send(f"[*] To join to other room please type: /join <NAME_OF_OTHER_ROOM>".encode("utf-8"))
+                    continue
+                other_room = parts_join[1]
+
+                if other_room not in chatrooms:
+                    client.send(f"[*] Room of this name doesnt exist!".encode("utf-8"))
+                    continue
+
+                chatrooms[room] = [(c, n) for c, n in chatrooms[room] if c != client]
+                for c, n in chatrooms[room]:
+                    c.send(f"[*] {nickname} has left the room.".encode("utf-8"))
+
+                if not chatrooms[room]:
+                    del chatrooms[room]
+
+                room = other_room
+                chatrooms[room].append((client,nickname))
+                client.send(f"[*] You have joined to channel '{other_room}'!".encode("utf-8"))
+                for c,n in chatrooms[room]:
+                    if c != client:
+                        c.send(f"[*] {nickname} has joined the room".encode("utf-8"))
+                continue
+
             if msg == "/who":
                 users_in_room = [nick for _, nick in chatrooms[room]]
                 client.send(f"[*] In the '{room}' room are: {', '.join(users_in_room)}".encode("utf-8"))
