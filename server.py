@@ -22,6 +22,7 @@ def handle_client(client, addr):
         while True:
             time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             msg = client.recv(1024).decode("utf-8").strip()
+
             if not msg:
                 break
 
@@ -33,11 +34,13 @@ def handle_client(client, addr):
                 rooms_list = ', '.join(chatrooms.keys())
                 client.send(f"[*] Active rooms: {rooms_list}".encode("utf-8"))
                 continue
+
             if msg.startswith("/nick"):
                 parts = msg.split(" ",1)
                 if len(parts) < 2:
                     client.send(f"[*] To change nickname use: /nick <NEW_NICKNAME".encode("utf-8"))
                     continue
+
                 new_nickname = parts[1]
                 old_nickname = nickname
                 nickname = new_nickname
@@ -50,6 +53,7 @@ def handle_client(client, addr):
                         c.send(f"[*] From now {old_nickname} is known as {new_nickname}".encode("utf-8"))
                         print(f"[*] From now {old_nickname} is known as {new_nickname}")
                 continue
+
             print(f" {time} [{room}] {addr} {nicks[addr]}: {msg}")
 
             for c,n in chatrooms[room]:
