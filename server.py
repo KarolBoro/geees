@@ -27,20 +27,31 @@ def handle_client(client, addr):
                 break
 
             if msg.startswith("/create"):
-                parts_new_room = msg.split(" ",1)
+                parts_new_room = msg.split(" ", 1)
                 if len(parts_new_room) < 2:
                     client.send(f"[*] To create new room use: /create <ROOM_NAME> ".encode("utf-8"))
                     continue
-                room = parts_new_room[1]
-                if room not in chatrooms:
-                    chatrooms[room] = []
-                else:
-                    client.send(f"[*] Room '{room}' already exists!".encode("utf-8"))
+
+                new_room = parts_new_room[1]
+
+                if new_room in chatrooms:
+                    client.send(f"[*] Room '{new_room}' already exists!".encode("utf-8"))
                     continue
-                chatrooms[room].append((client,nickname))
+
+                chatrooms[room] = [(c, n) for c, n in chatrooms[room] if c != client]
+                for c, n in chatrooms[room]:
+                    c.send(f"[*] {nickname} has left the room.".encode("utf-8"))
+
+                if not chatrooms[room]:
+                    del chatrooms[room]
+
+                room = new_room
+                chatrooms[room] = [(client, nickname)]
+                client.send(f"[*] You created and joined room '{room}'".encode("utf-8"))
 
             if msg == "/who":
-                client.send(f"[*] In the room are: {', '.join(users_in_room)}".encode("utf-8"))
+                users_in_room = [nick for _, nick in chatrooms[room]]
+                client.send(f"[*] In the '{room}' room are: {', '.join(users_in_room)}".encode("utf-8"))
                 continue
 
             if msg == "/rooms":
