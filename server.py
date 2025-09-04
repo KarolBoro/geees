@@ -14,7 +14,7 @@ def handle_client(client, addr):
         chatrooms[room] = []
     chatrooms[room].append((client,nickname))
     users_in_room = [nick for _, nick in chatrooms[room]]
-    client.send(f"[*] In the room are: {', '.join(users_in_room)}".encode("utf-8"))
+    client.send(f"[*] In the '{room}' room are: {', '.join(users_in_room)}".encode("utf-8"))
     for c, n in chatrooms[room]:
         if c != client:
             c.send(f"[*] {nickname} just joined to the {room}".encode("utf-8"))
@@ -26,6 +26,19 @@ def handle_client(client, addr):
             if not msg:
                 break
 
+            if msg.startswith("/create"):
+                parts_new_room = msg.split(" ",1)
+                if len(parts_new_room) < 2:
+                    client.send(f"[*] To create new room use: /create <ROOM_NAME> ".encode("utf-8"))
+                    continue
+                room = parts_new_room[1]
+                if room not in chatrooms:
+                    chatrooms[room] = []
+                else:
+                    client.send(f"[*] Room '{room}' already exists!".encode("utf-8"))
+                    continue
+                chatrooms[room].append((client,nickname))
+
             if msg == "/who":
                 client.send(f"[*] In the room are: {', '.join(users_in_room)}".encode("utf-8"))
                 continue
@@ -36,12 +49,12 @@ def handle_client(client, addr):
                 continue
 
             if msg.startswith("/nick"):
-                parts = msg.split(" ",1)
-                if len(parts) < 2:
-                    client.send(f"[*] To change nickname use: /nick <NEW_NICKNAME".encode("utf-8"))
+                parts_new_nickname = msg.split(" ",1)
+                if len(parts_new_nickname) < 2:
+                    client.send(f"[*] To change nickname use: /nick <NEW_NICKNAME>".encode("utf-8"))
                     continue
 
-                new_nickname = parts[1]
+                new_nickname = parts_new_nickname[1]
                 old_nickname = nickname
                 nickname = new_nickname
                 nicks[addr] = new_nickname
