@@ -1,7 +1,16 @@
 import socket
 from datetime import datetime
 import threading
+import mysql.connector
 
+mydb = mysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    password = "",
+    database = "geees"
+)
+
+mycursor = mydb.cursor()
 
 chatrooms = {}
 nicks = {}
@@ -105,6 +114,12 @@ def handle_client(client, addr):
                 continue
 
             print(f" {time} [{room}] {addr} {nicks[addr]}: {msg}")
+
+            sql = "INSERT into logs(Date_time, Room, Nickname, MSG) VALUES (%s, %s, %s, %s)"
+            val = (time,room,nickname,msg)
+            mycursor.execute(sql,val)
+            mydb.commit()
+            print(mycursor.rowcount, "record inserted.")
 
             for c,n in chatrooms[room]:
                 if c != client:
