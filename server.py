@@ -89,6 +89,15 @@ def handle_client(client, addr):
                 client.send(f"[*] In the '{room}' room are: {', '.join(users_in_room)}".encode("utf-8"))
                 continue
 
+            if msg in ["/commands", "/?", "/command"]:
+                client.send(f"[*] Hello! Available commands are:\n"
+                            f"/who - list of users in channel\n"
+                            f"/rooms - list of available channels\n"
+                            f"/create <room_name> - create your own channel\n"
+                            f"/join <name_of_channel> - join to another available channel\n"
+                            f"/nick <new_name> - change your nickname\n"
+                            f"/quit - leave the chat".encode("utf-8"))
+                continue
             if msg == "/rooms":
                 rooms_list = ', '.join(chatrooms.keys())
                 client.send(f"[*] Active rooms: {rooms_list}".encode("utf-8"))
