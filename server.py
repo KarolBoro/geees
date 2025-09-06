@@ -108,7 +108,7 @@ def handle_client(client, addr):
 
             for c,n in chatrooms[room]:
                 if c != client:
-                    c.send(f"{nickname}: {msg}".encode("utf-8"))
+                    c.send(f"[{time}] {nickname}: {msg}".encode("utf-8"))
             if msg.strip() == "/quit":
                 break
 
