@@ -169,4 +169,4 @@ def start_server():
         thread.start()
 
 start_server()
-
+mydb.close()
