@@ -2,6 +2,7 @@ import socket
 from datetime import datetime
 import threading
 import mysql.connector
+import emoji
 
 mydb = mysql.connector.connect(
     host = "localhost",
