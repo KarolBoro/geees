@@ -3,7 +3,7 @@ from datetime import datetime
 import threading
 import mysql.connector
 import emoji
-#
+
 mydb = mysql.connector.connect(
     host = "localhost",
     user = "root",
@@ -32,7 +32,7 @@ def handle_client(client, addr):
         while True:
             time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             msg = client.recv(1024).decode("utf-8").strip()
-
+            msg = emoji.emojize(msg)
             if not msg:
                 break
 
