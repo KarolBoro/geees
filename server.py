@@ -5,16 +5,18 @@ import mysql.connector
 import emoji
 
 mydb = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    password = "",
-    database = "geees"
+    host="localhost",
+    user="root",
+    password="",
+    database="geees"
 )
 
 mycursor = mydb.cursor()
 
 chatrooms = {}
 nicks = {}
+
+
 def handle_client(client, addr):
     room = client.recv(1024).decode("utf-8").strip()
     nickname = client.recv(1024).decode("utf-8")
@@ -22,7 +24,7 @@ def handle_client(client, addr):
     nicks[addr] = nickname
     if room not in chatrooms:
         chatrooms[room] = []
-    chatrooms[room].append((client,nickname))
+    chatrooms[room].append((client, nickname))
     users_in_room = [nick for _, nick in chatrooms[room]]
     client.send(f"[*] In the '{room}' room are: {', '.join(users_in_room)}".encode("utf-8"))
     for c, n in chatrooms[room]:
@@ -60,7 +62,7 @@ def handle_client(client, addr):
                 client.send(f"[*] You created and joined room '{room}'".encode("utf-8"))
 
             if msg.startswith("/join"):
-                parts_join = msg.split(" ",1)
+                parts_join = msg.split(" ", 1)
                 if len(parts_join) < 2:
                     client.send(f"[*] To join to other room please type: /join <NAME_OF_OTHER_ROOM>".encode("utf-8"))
                     continue
@@ -78,9 +80,9 @@ def handle_client(client, addr):
                     del chatrooms[room]
 
                 room = other_room
-                chatrooms[room].append((client,nickname))
+                chatrooms[room].append((client, nickname))
                 client.send(f"[*] You have joined to channel '{other_room}'!".encode("utf-8"))
-                for c,n in chatrooms[room]:
+                for c, n in chatrooms[room]:
                     if c != client:
                         c.send(f"[*] {nickname} has joined the room".encode("utf-8"))
                 continue
@@ -110,7 +112,7 @@ def handle_client(client, addr):
                 continue
 
             if msg.startswith("/nick"):
-                parts_new_nickname = msg.split(" ",1)
+                parts_new_nickname = msg.split(" ", 1)
                 if len(parts_new_nickname) < 2:
                     client.send(f"[*] To change nickname use: /nick <NEW_NICKNAME>".encode("utf-8"))
                     continue
@@ -131,12 +133,12 @@ def handle_client(client, addr):
             print(f" {time} [{room}] {addr} {nicks[addr]}: {msg}")
 
             sql = "INSERT into logs(Date_time, Room, Nickname, MSG) VALUES (%s, %s, %s, %s)"
-            val = (time,room,nickname,msg)
-            mycursor.execute(sql,val)
+            val = (time, room, nickname, msg)
+            mycursor.execute(sql, val)
             mydb.commit()
             print(mycursor.rowcount, "record inserted.")
 
-            for c,n in chatrooms[room]:
+            for c, n in chatrooms[room]:
                 if c != client:
                     c.send(f"[{time}] {nickname}: {msg}".encode("utf-8"))
             if msg.strip() == "/quit":
@@ -146,10 +148,10 @@ def handle_client(client, addr):
         pass
     finally:
         user_nick = nicks.get(addr, nickname)
-        chatrooms[room] = [(c,n) for c,n in chatrooms[room] if c != client]
+        chatrooms[room] = [(c, n) for c, n in chatrooms[room] if c != client]
         client.close()
 
-        for c,n in chatrooms[room]:
+        for c, n in chatrooms[room]:
             if c != client:
                 c.send(f"[*] {user_nick} has disconnected".encode("utf-8"))
 
@@ -174,6 +176,6 @@ def start_server():
         thread = threading.Thread(target=handle_client, args=(client, addr))
         thread.start()
 
-start_server()
 
+start_server()
 mydb.close()
