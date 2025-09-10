@@ -97,12 +97,17 @@ def handle_client(client, addr):
                             f"/create <room_name> - create your own channel\n"
                             f"/join <name_of_channel> - join to another available channel\n"
                             f"/nick <new_name> - change your nickname\n"
+                            f"/emojis - list of available emoji's\n"
                             f"/quit - leave the chat".encode("utf-8"))
                 continue
             if msg == "/rooms":
                 rooms_list = ', '.join(chatrooms.keys())
                 client.send(f"[*] Active rooms: {rooms_list}".encode("utf-8"))
                 continue
+
+            if msg == "/emojis":
+                client.send(f"Available emoji's : https://carpedm20.github.io/emoji/ ")
+
 
             if msg.startswith("/nick"):
                 parts_new_nickname = msg.split(" ",1)
