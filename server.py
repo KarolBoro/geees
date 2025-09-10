@@ -106,8 +106,8 @@ def handle_client(client, addr):
                 continue
 
             if msg == "/emojis":
-                client.send(f"Available emoji's : https://carpedm20.github.io/emoji/ ")
-
+                client.send(f"Available emoji's : https://carpedm20.github.io/emoji/".encode("utf-8"))
+                continue
 
             if msg.startswith("/nick"):
                 parts_new_nickname = msg.split(" ",1)
